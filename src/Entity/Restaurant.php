@@ -44,7 +44,7 @@ class Restaurant
      */
     private $address;
 
-    public function __construct($id)
+    public function __construct($id = 0)
     {
         $this->id = $id;
     }

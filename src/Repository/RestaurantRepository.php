@@ -12,11 +12,16 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Restaurant[]    findAll()
  * @method Restaurant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RestaurantRepository extends ServiceEntityRepository
+class RestaurantRepository extends ServiceEntityRepository implements RestaurantRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, $restaurantFilePath, $symfonyEnv, $composerLicense)
     {
         parent::__construct($registry, Restaurant::class);
+    }
+
+    public function findOneById($id)
+    {
+        return parent::findOneBy(['id' => $id]);
     }
 
     // /**

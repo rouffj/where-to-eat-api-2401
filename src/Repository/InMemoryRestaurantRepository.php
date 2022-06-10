@@ -5,8 +5,9 @@ namespace App\Repository;
 use App\Entity\Restaurant;
 use App\Entity\Address;
 
-class InMemoryRestaurantRepository
+class InMemoryRestaurantRepository implements RestaurantRepositoryInterface
 {
+
     public function findOneById($id): ?Restaurant
     {
         $restaurants = array_filter($this->findAll(), function(Restaurant $restaurant) use ($id) {

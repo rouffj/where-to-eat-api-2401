@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Repository\InMemoryRestaurantRepository;
 use App\Repository\RestaurantRepository;
+use App\Repository\RestaurantRepositoryInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,19 +24,27 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 class RestaurantController extends AbstractController
 {
-    private InMemoryRestaurantRepository $restaurantRepository;
+    private RestaurantRepositoryInterface $restaurantRepository;
 
-    public function __construct(InMemoryRestaurantRepository $restaurantRepository)
+    public function __construct(RestaurantRepositoryInterface $restaurantRepository)
     {
         //$this->restaurantRepository = new InMemoryRestaurantRepository();
         $this->restaurantRepository = $restaurantRepository;
     }
 
+
     /**
      * @Route("/restaurants", name="restaurants")
+     * option 1
+     * @IsGranted("ROLE_ADMIN", message="To view the restaurant list, you should have the ADMIN role.")
      */
     public function list(): Response
     {
+        // option 2
+        /*if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Message d\'acces');
+        }*/
+
         $restaurants = $this->restaurantRepository->findAll();
         //$restaurants = $this->getRestaurants();
 

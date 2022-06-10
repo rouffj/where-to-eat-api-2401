@@ -12,6 +12,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use App\Event\UserCreatedEvent;
 
 /**
  *  POST /users // add a new user
@@ -32,7 +34,7 @@ class UserController extends AbstractController
     /**
      * @Route("", name="create", methods="POST")
      */
-    public function create(Request $request, SerializerInterface $serializer): Response
+    public function create(Request $request, SerializerInterface $serializer, EventDispatcherInterface $eventDispatcher): Response
     {
         $newUserInfo = $request->getContent();
 
@@ -46,6 +48,7 @@ class UserController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
         dump($user);
+        $eventDispatcher->dispatch(new UserCreatedEvent($user), 'user_created');
 
         return $this->json($user, 201);
     }
@@ -62,6 +65,8 @@ class UserController extends AbstractController
         // User from DB
         $myUser = $userRepo->findOneById($id);
 
+        $this->denyAccessUnlessGranted('USER_EDIT', $myUser);
+
         /** var User */
         $user = $serializer->deserialize($newUserInfo, User::class, 'json', [
             AbstractNormalizer::OBJECT_TO_POPULATE => $myUser
@@ -69,7 +74,6 @@ class UserController extends AbstractController
         if ($errors = $this->runValidation($user)) {
             return $errors;
         }
-        dump($user, $myUser);
 
         // @TODO Insert in database
         $this->entityManager->flush();
